@@ -1,0 +1,41 @@
+# Compiled class files
+*.class
+target/
+*.jar
+*.war
+*.ear
+
+# Log files
+*.log
+logs/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets and API Keys
+application-secrets.properties
+*.env
+.env
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Test files
+*.test
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
