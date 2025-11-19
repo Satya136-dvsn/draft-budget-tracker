@@ -11,6 +11,7 @@ import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tool
 import StatCard from '../components/ui/StatCard';
 import ProfessionalCard from '../components/ui/ProfessionalCard';
 import dashboardService from '../services/dashboardService';
+import { getCategoryColor } from '../utils/categoryColors';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -20,8 +21,6 @@ const Dashboard = () => {
   const [monthlyTrends, setMonthlyTrends] = useState([]);
   const [categoryBreakdown, setCategoryBreakdown] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
-
-  const categoryColors = ['#2196F3', '#4CAF50', '#FF9800', '#F44336', '#9C27B0', '#00BCD4', '#FFEB3B', '#795548', '#E91E63', '#3F51B5'];
 
   useEffect(() => { loadDashboardData(); }, []);
 
@@ -156,7 +155,7 @@ const Dashboard = () => {
                         style={{ fontSize: '13px', fontWeight: 600, fill: '#fff', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
                       >
                         {categoryBreakdown.map((entry, index) => (
-                          <Cell key={entry.categoryId} fill={categoryColors[index % categoryColors.length]} stroke="#1a1a1a" strokeWidth={2} />
+                          <Cell key={entry.categoryId} fill={getCategoryColor(entry.categoryId, index)} stroke="#1a1a1a" strokeWidth={2} />
                         ))}
                       </Pie>
                       <Tooltip
