@@ -22,11 +22,11 @@ public class GdprController {
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportUserData(@AuthenticationPrincipal UserDetails userDetails) {
         Long userId = userService.findByEmail(userDetails.getUsername()).getId();
-        byte[] data = exportService.exportAllUserData(userId);
+        byte[] data = exportService.exportAllDataCSV(userId);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=user_data_export.json")
-                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=user_data_export.csv")
+                .contentType(MediaType.TEXT_PLAIN)
                 .body(data);
     }
 

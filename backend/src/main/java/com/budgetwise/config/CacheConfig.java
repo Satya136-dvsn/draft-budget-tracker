@@ -14,16 +14,17 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         // Use simple in-memory cache (works without Redis)
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager(
-                "dashboardSummary",
-                "monthlyTrends",
-                "categoryBreakdown",
+                "dashboard_summary",
+                "dashboard_trends",
+                "dashboard_breakdown",
                 "categories",
+                "custom_categories",
                 "userProfile",
-                "predictions"
-        );
+                "predictions");
         return cacheManager;
     }
 }
 
-// Note: To use Redis caching, uncomment Redis configuration in application.properties
+// Note: To use Redis caching, uncomment Redis configuration in
+// application.properties
 // and replace this with RedisCacheManager configuration
