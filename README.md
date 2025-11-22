@@ -1,111 +1,111 @@
-# BudgetWise - AI-Driven Personal Finance Tracker
+# BudgetWise Tracker - AI-Driven Personal Finance Manager 🚀
 
-A comprehensive full-stack personal finance management application with AI-powered features, built with Spring Boot and React.
+BudgetWise Tracker is a comprehensive, full-stack personal finance application designed to help users manage their budget, track expenses, monitor investments, and plan for the future with the power of AI.
 
-![BudgetWise](https://img.shields.io/badge/version-1.0.0-blue)
-![Java](https://img.shields.io/badge/Java-17-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-green)
-![React](https://img.shields.io/badge/React-18.2.0-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
+![BudgetWise Dashboard](https://via.placeholder.com/800x400?text=BudgetWise+Dashboard+Preview)
 
-## 🌟 Features
+## 🌟 Key Features
 
-### ✅ Completed (Phase 1-2)
+### 📊 Smart Dashboard
 
-#### Authentication & User Management
+- **Real-time Overview**: Instant view of total balance, monthly income, and expenses.
+- **Visual Analytics**: Interactive charts and graphs for spending breakdown.
+- **Recent Transactions**: Quick access to latest financial activities.
 
-- User registration and login with JWT authentication
-- Secure password encryption
-- Role-based access control (USER, ADMIN)
-- User profile management
+### 🤖 AI-Powered Insights
 
-#### Financial Tracking
+- **Smart Predictions**: AI algorithms analyze your spending habits to predict future expenses.
+- **Budget Recommendations**: Get personalized budget suggestions based on your financial history.
+- **Anomaly Detection**: Automatically flags unusual spending patterns.
 
-- **Transactions**: Create, read, update, delete income and expenses
-- **Categories**: System and custom categories with emoji icons
-- **Budgets**: Set monthly budgets per category with progress tracking
-- **Savings Goals**: Track savings goals with target amounts and deadlines
+### 🧾 Bills Management
 
-#### Dashboard & Analytics
+- **Recurring Bills**: Track weekly, monthly, quarterly, or yearly bills.
+- **Calendar View**: Visual calendar with due dates and "Year View" projection.
+- **Payment Tracking**: Mark bills as paid and automatically generate expense transactions.
 
-- Real-time financial summary (income, expenses, balance)
-- Category-wise spending breakdown
-- Monthly trends and statistics
-- Budget vs actual spending comparison
+### 💰 Investment Portfolio
 
-#### AI-Powered Features
+- **Real-Time Market Simulator**: Experience a live trading environment with simulated price fluctuations.
+- **Portfolio Tracking**: Monitor stocks, crypto, mutual funds, and more.
+- **Performance Metrics**: Real-time P&L calculation and asset allocation analysis.
+- **Live Ticker**: Scrolling ticker tape with major market indices.
 
-- **Smart Categorization**: AI suggests categories for transactions
-- **Spending Predictions**: ML-based future spending forecasts
-- **Budget Advisor**: Personalized budget recommendations
-- **Anomaly Detection**: Identifies unusual spending patterns
-- **Chat Assistant**: Natural language financial queries
+### 🎯 Savings Goals
 
-#### Advanced Features
+- **Goal Tracking**: Set and track progress towards financial goals (e.g., Vacation, New Car).
+- **Auto-Contribution**: Link transactions to specific goals.
 
-### Planned
+### 🔔 Smart Notifications
 
-- 📋 Mobile App (React Native)
-- 📋 Docker Deployment
-- 📋 CI/CD Pipeline
-- 📋 Unit Tests (Backend)
-- 📋 E2E Tests (Frontend)
+- **Alerts**: Get notified about budget overruns, bill due dates, and investment milestones.
+- **Dropdown Menu**: Quick access to latest notifications from the top bar.
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- **React 18**: Component-based UI architecture.
+- **Vite**: Next-generation frontend tooling for fast builds.
+- **Material UI (MUI)**: Professional and responsive design system.
+- **Recharts**: Composable charting library for React.
+- **Date-fns**: Modern date utility library.
+
+### Backend
+
+- **Spring Boot 3.2**: Robust Java framework for enterprise-grade applications.
+- **Spring Security**: Secure authentication and authorization (JWT).
+- **Spring Data JPA**: Efficient database interaction using Hibernate.
+- **MySQL**: Reliable relational database management system.
+- **Lombok**: Boilerplate code reduction.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Java 17 or higher
+- Node.js 18 or higher
+- MySQL 8.0
+
+### Installation
+
+1. **Clone the repository**
+
+    ```bash
+    git clone https://github.com/Satya136-dvsn/budgetwise_tracker_ai_driven.git
+    cd budgetwise_tracker_ai_driven
+    ```
+
+2. **Backend Setup**
+    - Navigate to `backend` directory.
+    - Update `application.properties` with your MySQL credentials.
+    - Run the application:
+
+        ```bash
+        ./mvnw spring-boot:run
+        ```
+
+3. **Frontend Setup**
+    - Navigate to `frontend` directory.
+    - Install dependencies:
+
+        ```bash
+        npm install
+        ```
+
+    - Start the development server:
+
+        ```bash
+        npm run dev
+        ```
+
+4. **Access the App**
+    - Open your browser and go to `http://localhost:3000`
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👤 Author
-
-**Satya Dvsn**
-
-- GitHub: [@Satya136-dvsn](https://github.com/Satya136-dvsn)
-
-## 🙏 Acknowledgments
-
-- Spring Boot Team
-- React Team
-- Material-UI Team
-- OpenAI for GPT-4 API
-- All open-source contributors
-
-## 📞 Support
-
-For support, email <your-email@example.com> or open an issue on GitHub.
-
-## 🗺️ Roadmap
-
-### Version 1.1 (Q1 2026)
-
-- Complete frontend UI
-- Mobile responsive design
-- Dark mode support
-- Multi-currency support
-
-### Version 2.0 (Q2 2026)
-
-- Mobile app (iOS & Android)
-- Bank account integration
-- Receipt scanning (OCR)
-- Investment tracking
-
-### Version 3.0 (Q3 2026)
-
-- Multi-user households
-- Shared budgets
-- Bill reminders
-- Financial reports
-
----
-
-**⭐ Star this repo if you find it helpful!**

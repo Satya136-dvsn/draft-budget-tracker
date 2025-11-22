@@ -16,7 +16,9 @@ public class CacheConfig {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager(
                 "dashboard_summary",
                 "dashboard_trends",
+                "monthly_trends", // Added for TransactionService
                 "dashboard_breakdown",
+                "category_breakdown", // Added for TransactionService
                 "categories",
                 "custom_categories",
                 "userProfile",

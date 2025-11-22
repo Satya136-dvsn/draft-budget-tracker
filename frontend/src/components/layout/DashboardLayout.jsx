@@ -39,6 +39,9 @@ import {
   Receipt as BillsIcon,
   TrendingUp as InvestmentsIcon,
   SmartToy as AIIcon,
+  Info as InfoIcon,
+  Warning as WarningIcon,
+  TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -69,6 +72,7 @@ const DashboardLayout = () => {
   });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const [userAvatar, setUserAvatar] = useState('');
 
   const { user, logout } = useAuth();
@@ -287,12 +291,72 @@ const DashboardLayout = () => {
 
           {/* Notification Bell */}
           <Tooltip title="Notifications">
-            <IconButton color="inherit" sx={{ mr: 1 }}>
-              <Badge badgeContent={0} color="error">
+            <IconButton color="inherit" sx={{ mr: 1 }} onClick={(e) => setNotificationAnchorEl(e.currentTarget)}>
+              <Badge badgeContent={3} color="error">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
           </Tooltip>
+
+          <Menu
+            anchorEl={notificationAnchorEl}
+            open={Boolean(notificationAnchorEl)}
+            onClose={() => setNotificationAnchorEl(null)}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            PaperProps={{
+              sx: { width: 320, maxHeight: 400 }
+            }}
+          >
+            <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
+              <Typography variant="subtitle1" fontWeight="bold">Notifications</Typography>
+            </Box>
+            <MenuItem onClick={() => { setNotificationAnchorEl(null); navigate('/notifications'); }}>
+              <ListItemIcon>
+                <InfoIcon fontSize="small" color="info" />
+              </ListItemIcon>
+              <ListItemText
+                primary="Welcome to BudgetWise!"
+                secondary="Start tracking your finances today."
+                primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
+                secondaryTypographyProps={{ variant: 'caption', noWrap: true }}
+              />
+            </MenuItem>
+            <MenuItem onClick={() => { setNotificationAnchorEl(null); navigate('/notifications'); }}>
+              <ListItemIcon>
+                <WarningIcon fontSize="small" color="warning" />
+              </ListItemIcon>
+              <ListItemText
+                primary="Budget Alert"
+                secondary="You've reached 80% of your Dining budget."
+                primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
+                secondaryTypographyProps={{ variant: 'caption', noWrap: true }}
+              />
+            </MenuItem>
+            <MenuItem onClick={() => { setNotificationAnchorEl(null); navigate('/notifications'); }}>
+              <ListItemIcon>
+                <TrendingUpIcon fontSize="small" color="success" />
+              </ListItemIcon>
+              <ListItemText
+                primary="Investment Update"
+                secondary="Apple stock is up by 5% today."
+                primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
+                secondaryTypographyProps={{ variant: 'caption', noWrap: true }}
+              />
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={() => { setNotificationAnchorEl(null); navigate('/notifications'); }} sx={{ justifyContent: 'center' }}>
+              <Typography variant="body2" color="primary" fontWeight="bold">
+                View All Notifications
+              </Typography>
+            </MenuItem>
+          </Menu>
 
           {/* User Profile Menu */}
           <Tooltip title="Account">

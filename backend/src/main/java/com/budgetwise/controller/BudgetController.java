@@ -16,9 +16,9 @@ import java.util.List;
 @RequestMapping("/api/budgets")
 @RequiredArgsConstructor
 public class BudgetController {
-    
+
     private final BudgetService budgetService;
-    
+
     @PostMapping
     public ResponseEntity<BudgetDto> createBudget(
             @Valid @RequestBody BudgetDto dto,
@@ -26,17 +26,16 @@ public class BudgetController {
         BudgetDto created = budgetService.createBudget(dto, userPrincipal.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
-    
+
     @GetMapping
     public ResponseEntity<List<BudgetDto>> getAllBudgets(
             @RequestParam(required = false, defaultValue = "false") boolean activeOnly,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<BudgetDto> budgets = activeOnly ? 
-            budgetService.getActiveBudgets(userPrincipal.getId()) :
-            budgetService.getAllBudgets(userPrincipal.getId());
+        List<BudgetDto> budgets = activeOnly ? budgetService.getActiveBudgets(userPrincipal.getId())
+                : budgetService.getAllBudgets(userPrincipal.getId());
         return ResponseEntity.ok(budgets);
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<BudgetDto> getBudgetById(
             @PathVariable Long id,
@@ -44,7 +43,7 @@ public class BudgetController {
         BudgetDto budget = budgetService.getBudgetById(id, userPrincipal.getId());
         return ResponseEntity.ok(budget);
     }
-    
+
     @PutMapping("/{id}")
     public ResponseEntity<BudgetDto> updateBudget(
             @PathVariable Long id,
@@ -53,7 +52,16 @@ public class BudgetController {
         BudgetDto updated = budgetService.updateBudget(id, dto, userPrincipal.getId());
         return ResponseEntity.ok(updated);
     }
-    
+
+    @PostMapping("/{id}/contribute")
+    public ResponseEntity<BudgetDto> addContribution(
+            @PathVariable Long id,
+            @Valid @RequestBody com.budgetwise.dto.ContributionRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        BudgetDto updated = budgetService.addContribution(id, request, userPrincipal.getId());
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBudget(
             @PathVariable Long id,
@@ -61,17 +69,17 @@ public class BudgetController {
         budgetService.deleteBudget(id, userPrincipal.getId());
         return ResponseEntity.noContent().build();
     }
-    
+
     @GetMapping("/alerts")
     public ResponseEntity<List<BudgetDto>> getBudgetAlerts(
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<BudgetDto> budgets = budgetService.getActiveBudgets(userPrincipal.getId());
-        
+
         // Filter budgets that exceed alert threshold
         List<BudgetDto> alerts = budgets.stream()
-            .filter(b -> b.getProgressPercentage().compareTo(b.getAlertThreshold()) >= 0)
-            .toList();
-        
+                .filter(b -> b.getProgressPercentage().compareTo(b.getAlertThreshold()) >= 0)
+                .toList();
+
         return ResponseEntity.ok(alerts);
     }
 }

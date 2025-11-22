@@ -10,10 +10,8 @@ const aiService = {
     },
 
     // Get spending predictions
-    getPredictions: (months = 3) => {
-        return api.post('/ai/predict', {
-            months
-        });
+    getPredictions: () => {
+        return api.get('/ai/predictions');
     },
 
     // Get budget recommendations

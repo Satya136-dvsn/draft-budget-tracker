@@ -1,0 +1,52 @@
+  const handleAdd = () => {
+    setSelectedTransaction(null);
+    setDialogOpen(true);
+  };
+
+  const handleEdit = (transaction) => {
+    setSelectedTransaction(transaction);
+    setDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleDelete = (id) => {
+    if (!id) {
+      setError('Cannot delete: invalid transaction ID');
+      return;
+    }
+    setTransactionToDelete(id);
+    setDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const confirmDelete = async () => {
+    if (!transactionToDelete) return;
+    
+    try {
+      await transactionService.delete(transactionToDelete);
+      setDeleteDialogOpen(false);
+      setTransactionToDelete(null);
+      loadData();
+      setSelected(selected.filter((selectedId) => selectedId !== transactionToDelete));
+    } catch (err) {
+      setError('Failed to delete transaction');
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setTransactionToDelete(null);
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Delete ${selected.length} selected transactions?`)) return;
+
+    try {
+      await Promise.all(selected.map((id) => transactionService.delete(id)));
+      loadData();
+      setSelected([]);
+    } catch (err) {
+      setError('Failed to delete transactions');
+    }
+  };

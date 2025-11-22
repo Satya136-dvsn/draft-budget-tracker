@@ -36,6 +36,8 @@ import {
 } from '@mui/icons-material';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
+import exportService from '../services/exportService';
+import ExportMenu from '../components/common/ExportMenu';
 import TransactionDialog from '../components/TransactionDialog';
 import TransactionFilters from '../components/transactions/TransactionFilters';
 
@@ -77,7 +79,7 @@ const Transactions = () => {
     try {
       setLoading(true);
       const [transactionsRes, categoriesRes] = await Promise.all([
-        transactionService.getAll(),
+        transactionService.getAll({ page: 0, size: 1000 }),
         categoryService.getAll(),
       ]);
 
@@ -313,14 +315,24 @@ const Transactions = () => {
                 Manage all your income and expenses
               </Typography>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleAdd}
-              size="large"
-            >
-              Add Transaction
-            </Button>
+            <Box display="flex" gap={1}>
+              <ExportMenu
+                formats={['csv', 'excel', 'pdf']}
+                onExport={(format) => exportService.exportTransactions(
+                  filters.startDate,
+                  filters.endDate,
+                  format
+                )}
+              />
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleAdd}
+                size="large"
+              >
+                Add Transaction
+              </Button>
+            </Box>
           </Box>
 
           {error && (
@@ -336,171 +348,165 @@ const Transactions = () => {
             activeFilters={filters}
           />
 
-          {/* Bulk Actions Toolbar */}
-          {numSelected > 0 && (
-            <Fade in>
-              <Paper sx={{ mb: 2, p: 2, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-                <Toolbar disableGutters>
-                  <Typography sx={{ flex: '1 1 100%' }} variant="subtitle1">
-                    {numSelected} selected
-                  </Typography>
-                  <Tooltip title="Delete selected">
-                    <IconButton color="inherit" onClick={handleBulkDelete}>
-                      <BulkDeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Export selected">
-                    <IconButton color="inherit" onClick={handleExportCSV}>
-                      <ExportIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Toolbar>
-              </Paper>
-            </Fade>
-          )}
+          <Box>
 
-          {/* Data Table */}
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      color="primary"
-                      indeterminate={numSelected > 0 && numSelected < rowCount}
-                      checked={rowCount > 0 && numSelected === rowCount}
-                      onChange={handleSelectAllClick}
-                    />
-                  </TableCell>
-                  <TableCell sortDirection={orderBy === 'transactionDate' ? order : false}>
-                    <TableSortLabel
-                      active={orderBy === 'transactionDate'}
-                      direction={orderBy === 'transactionDate' ? order : 'asc'}
-                      onClick={() => handleRequestSort('transactionDate')}
-                    >
-                      Date
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell sortDirection={orderBy === 'description' ? order : false}>
-                    <TableSortLabel
-                      active={orderBy === 'description'}
-                      direction={orderBy === 'description' ? order : 'asc'}
-                      onClick={() => handleRequestSort('description')}
-                    >
-                      Description
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell align="right" sortDirection={orderBy === 'amount' ? order : false}>
-                    <TableSortLabel
-                      active={orderBy === 'amount'}
-                      direction={orderBy === 'amount' ? order : 'asc'}
-                      onClick={() => handleRequestSort('amount')}
-                    >
-                      Amount
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell align="center">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedTransactions.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center">
-                      <Typography color="text.secondary" py={4}>
-                        {loading ? 'Loading transactions...' : 'No transactions found. Try adjusting your filters or add a new transaction.'}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedTransactions.map((transaction) => {
-                    const isItemSelected = isSelected(transaction.id);
-
-                    return (
-                      <TableRow
-                        key={transaction.id}
-                        hover
-                        selected={isItemSelected}
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            color="primary"
-                            checked={isItemSelected}
-                            onChange={() => handleSelectClick(transaction.id)}
-                          />
-                        </TableCell>
-                        <TableCell>{formatDate(transaction.transactionDate)}</TableCell>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {transaction.description}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={transaction.categoryName || 'Uncategorized'}
-                            size="small"
-                            variant="outlined"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={transaction.type}
-                            color={transaction.type === 'INCOME' ? 'success' : 'error'}
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: transaction.type === 'INCOME' ? 'success.main' : 'error.main',
-                            fontWeight: 600,
-                            fontSize: '0.95rem',
-                          }}
-                        >
-                          {formatAmount(transaction.amount, transaction.type)}
-                        </TableCell>
-                        <TableCell align="center">
-                          <IconButton
-                            size="small"
-                            onClick={(e) => handleMenuOpen(e, transaction)}
-                          >
-                            <MoreVertIcon fontSize="small" />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-            <TablePagination
-              rowsPerPageOptions={[10, 25, 50, 100]}
-              component="div"
-              count={sortedTransactions.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </TableContainer>
-
-          {/* Results Summary */}
-          <Box mt={2} display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="body2" color="text.secondary">
-              Showing {paginatedTransactions.length} of {sortedTransactions.length} transactions
-              {sortedTransactions.length !== transactions.length && ` (filtered from ${transactions.length} total)`}
-            </Typography>
-            {sortedTransactions.length > 0 && (
-              <Button
-                size="small"
-                startIcon={<ExportIcon />}
-                onClick={handleExportCSV}
-              >
-                Export All to CSV
-              </Button>
+            {/* Bulk Actions Toolbar */}
+            {numSelected > 0 && (
+              <Fade in>
+                <Paper sx={{ mb: 2, p: 2, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
+                  <Toolbar disableGutters>
+                    <Typography sx={{ flex: '1 1 100%' }} variant="subtitle1">
+                      {numSelected} selected
+                    </Typography>
+                    <Tooltip title="Delete selected">
+                      <IconButton color="inherit" onClick={handleBulkDelete}>
+                        <BulkDeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Export selected">
+                      <IconButton color="inherit" onClick={handleExportCSV}>
+                        <ExportIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Toolbar>
+                </Paper>
+              </Fade>
             )}
+
+            {/* Data Table */}
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        indeterminate={numSelected > 0 && numSelected < rowCount}
+                        checked={rowCount > 0 && numSelected === rowCount}
+                        onChange={handleSelectAllClick}
+                      />
+                    </TableCell>
+                    <TableCell sortDirection={orderBy === 'transactionDate' ? order : false}>
+                      <TableSortLabel
+                        active={orderBy === 'transactionDate'}
+                        direction={orderBy === 'transactionDate' ? order : 'asc'}
+                        onClick={() => handleRequestSort('transactionDate')}
+                      >
+                        Date
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell sortDirection={orderBy === 'description' ? order : false}>
+                      <TableSortLabel
+                        active={orderBy === 'description'}
+                        direction={orderBy === 'description' ? order : 'asc'}
+                        onClick={() => handleRequestSort('description')}
+                      >
+                        Description
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>Category</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell align="right" sortDirection={orderBy === 'amount' ? order : false}>
+                      <TableSortLabel
+                        active={orderBy === 'amount'}
+                        direction={orderBy === 'amount' ? order : 'asc'}
+                        onClick={() => handleRequestSort('amount')}
+                      >
+                        Amount
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell align="center">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedTransactions.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center">
+                        <Typography color="text.secondary" py={4}>
+                          {loading ? 'Loading transactions...' : 'No transactions found. Try adjusting your filters or add a new transaction.'}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedTransactions.map((transaction) => {
+                      const isItemSelected = isSelected(transaction.id);
+
+                      return (
+                        <TableRow
+                          key={transaction.id}
+                          hover
+                          selected={isItemSelected}
+                          sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        >
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              color="primary"
+                              checked={isItemSelected}
+                              onChange={() => handleSelectClick(transaction.id)}
+                            />
+                          </TableCell>
+                          <TableCell>{formatDate(transaction.transactionDate)}</TableCell>
+                          <TableCell>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              {transaction.description}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={transaction.categoryName || 'Uncategorized'}
+                              size="small"
+                              variant="outlined"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={transaction.type}
+                              color={transaction.type === 'INCOME' ? 'success' : 'error'}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              color: transaction.type === 'INCOME' ? 'success.main' : 'error.main',
+                              fontWeight: 600,
+                              fontSize: '0.95rem',
+                            }}
+                          >
+                            {formatAmount(transaction.amount, transaction.type)}
+                          </TableCell>
+                          <TableCell align="center">
+                            <IconButton
+                              size="small"
+                              onClick={(e) => handleMenuOpen(e, transaction)}
+                            >
+                              <MoreVertIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+              <TablePagination
+                rowsPerPageOptions={[10, 25, 50, 100]}
+                component="div"
+                count={sortedTransactions.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableContainer>
+
+            {/* Results Summary */}
+            <Box mt={2} display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="body2" color="text.secondary">
+                Showing {paginatedTransactions.length} of {sortedTransactions.length} transactions
+                {sortedTransactions.length !== transactions.length && ` (filtered from ${transactions.length} total)`}
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Fade>

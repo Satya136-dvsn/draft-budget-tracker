@@ -13,12 +13,13 @@ import {
 import {
     Edit as EditIcon,
     Delete as DeleteIcon,
-    AttachMoney as MoneyIcon,
+    CurrencyRupee as RupeeIcon,
     TrendingUp as TrendingUpIcon,
     EmojiEvents as TrophyIcon,
+    Remove as RemoveIcon,
 } from '@mui/icons-material';
 
-const GoalCard = ({ goal, onEdit, onDelete, onContribute }) => {
+const GoalCard = ({ goal, onEdit, onDelete, onContribute, onWithdraw }) => {
     const { name, targetAmount, currentAmount, deadline, category } = goal;
 
     const percentage = (currentAmount / targetAmount) * 100;
@@ -248,14 +249,25 @@ const GoalCard = ({ goal, onEdit, onDelete, onContribute }) => {
 
             <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
                 {!isCompleted && (
-                    <Chip
-                        label="Add Contribution"
-                        icon={<MoneyIcon />}
-                        onClick={() => onContribute(goal)}
-                        color="primary"
-                        clickable
-                        sx={{ fontWeight: 600 }}
-                    />
+                    <Box display="flex" gap={1}>
+                        <Chip
+                            label="Add"
+                            icon={<RupeeIcon />}
+                            onClick={() => onContribute(goal)}
+                            color="primary"
+                            clickable
+                            sx={{ fontWeight: 600 }}
+                        />
+                        <Chip
+                            label="Withdraw"
+                            icon={<RemoveIcon />}
+                            onClick={() => onWithdraw(goal)}
+                            color="warning"
+                            clickable
+                            variant="outlined"
+                            sx={{ fontWeight: 600 }}
+                        />
+                    </Box>
                 )}
                 <Box display="flex" gap={0.5} ml="auto">
                     <Tooltip title="Edit Goal">

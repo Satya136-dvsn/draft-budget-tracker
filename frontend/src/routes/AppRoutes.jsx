@@ -21,6 +21,8 @@ import BillsPage from '../pages/BillsPage'
 import InvestmentsPage from '../pages/InvestmentsPage'
 import AIChat from '../pages/AIChat'
 
+import Notifications from '../pages/Notifications'
+
 function AppRoutes() {
   return (
     <Routes>
@@ -50,6 +52,7 @@ function AppRoutes() {
         <Route path="/bills" element={<BillsPage />} />
         <Route path="/investments" element={<InvestmentsPage />} />
         <Route path="/ai-chat" element={<AIChat />} />
+        <Route path="/notifications" element={<Notifications />} />
       </Route>
     </Routes>
   )

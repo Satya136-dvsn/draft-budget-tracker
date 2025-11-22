@@ -37,15 +37,16 @@ public class DashboardController {
 
     @GetMapping("/category-breakdown")
     public ResponseEntity<List<CategoryBreakdownDto>> getCategoryBreakdown(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<CategoryBreakdownDto> breakdown = dashboardService.getCategoryBreakdown(userPrincipal.getId());
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(required = false, defaultValue = "6") Integer months) {
+        List<CategoryBreakdownDto> breakdown = dashboardService.getCategoryBreakdown(userPrincipal.getId(), months);
         return ResponseEntity.ok(breakdown);
     }
 
     @GetMapping("/recent-transactions")
     public ResponseEntity<List<TransactionDto>> getRecentTransactions(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(required = false, defaultValue = "10") Integer limit) {
+            @RequestParam(required = false, defaultValue = "5") Integer limit) {
         List<TransactionDto> transactions = dashboardService.getRecentTransactions(userPrincipal.getId(), limit);
         return ResponseEntity.ok(transactions);
     }

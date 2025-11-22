@@ -27,7 +27,7 @@ public class TransactionService {
     private final WebSocketService webSocketService;
 
     @Transactional
-    @CacheEvict(value = { "dashboardSummary", "monthlyTrends", "categoryBreakdown" }, allEntries = true)
+    @CacheEvict(value = { "dashboard_summary", "dashboard_trends", "dashboard_breakdown" }, allEntries = true)
     public TransactionDto createTransaction(TransactionDto dto, Long userId) {
         // Validate category exists
         Category category = categoryRepository.findById(dto.getCategoryId())
@@ -86,7 +86,7 @@ public class TransactionService {
     }
 
     @Transactional
-    @CacheEvict(value = { "dashboardSummary", "monthlyTrends", "categoryBreakdown" }, allEntries = true)
+    @CacheEvict(value = { "dashboard_summary", "dashboard_trends", "dashboard_breakdown" }, allEntries = true)
     public TransactionDto updateTransaction(Long id, TransactionDto dto, Long userId) {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
@@ -130,7 +130,7 @@ public class TransactionService {
     }
 
     @Transactional
-    @CacheEvict(value = { "dashboardSummary", "monthlyTrends", "categoryBreakdown" }, allEntries = true)
+    @CacheEvict(value = { "dashboard_summary", "dashboard_trends", "dashboard_breakdown" }, allEntries = true)
     public void deleteTransaction(Long id, Long userId) {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));

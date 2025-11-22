@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import html2canvas from 'html2canvas';
 import { useNavigate } from 'react-router-dom';
 import {
   Container, Grid, Typography, Box, Alert, Fade, Skeleton, List, ListItem, ListItemText, Button, Chip,
@@ -10,7 +11,9 @@ import {
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import StatCard from '../components/ui/StatCard';
 import ProfessionalCard from '../components/ui/ProfessionalCard';
+import ExportMenu from '../components/common/ExportMenu';
 import dashboardService from '../services/dashboardService';
+import exportService from '../services/exportService';
 import { getCategoryColor } from '../utils/categoryColors';
 
 const Dashboard = () => {
@@ -47,6 +50,34 @@ const Dashboard = () => {
   const formatCurrency = (amount) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
 
+  const handleExport = async (format) => {
+    try {
+      setLoading(true);
+      const images = {};
+
+      // Capture Monthly Trends Chart
+      const trendsNode = document.getElementById('monthly-trends-chart');
+      if (trendsNode) {
+        const canvas = await html2canvas(trendsNode);
+        images['Monthly Trends'] = canvas.toDataURL('image/png');
+      }
+
+      // Capture Category Breakdown Chart
+      const categoryNode = document.getElementById('category-breakdown-chart');
+      if (categoryNode) {
+        const canvas = await html2canvas(categoryNode);
+        images['Category Breakdown'] = canvas.toDataURL('image/png');
+      }
+
+      await exportService.exportDashboardWithImages(format, images);
+    } catch (err) {
+      console.error('Export failed:', err);
+      setError('Failed to export dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <Container maxWidth="xl" sx={{ pb: 4 }}>
@@ -65,9 +96,15 @@ const Dashboard = () => {
   return (
     <Container maxWidth="xl" sx={{ pb: 4 }}>
       <Fade in timeout={300}>
-        <Box mb={4}>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, mb: 0.5 }}>Dashboard</Typography>
-          <Typography variant="body2" color="text.secondary">Your financial overview at a glance</Typography>
+        <Box mb={4} display="flex" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, mb: 0.5 }}>Dashboard</Typography>
+            <Typography variant="body2" color="text.secondary">Your financial overview at a glance</Typography>
+          </Box>
+          <ExportMenu
+            formats={['excel', 'pdf']}
+            onExport={handleExport}
+          />
         </Box>
       </Fade>
 
@@ -112,17 +149,19 @@ const Dashboard = () => {
                     <Typography variant="caption" color="text.secondary">Add some transactions to see your financial trends</Typography>
                   </Box>
                 ) : (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={monthlyTrends} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                      <XAxis dataKey="month" stroke="#888" style={{ fontSize: '0.875rem' }} />
-                      <YAxis stroke="#888" style={{ fontSize: '0.875rem' }} />
-                      <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333', borderRadius: 8 }} />
-                      <Legend />
-                      <Line type="monotone" dataKey="income" name="Income" stroke="#4CAF50" strokeWidth={3} dot={{ fill: '#4CAF50', r: 4 }} activeDot={{ r: 6 }} />
-                      <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#F44336" strokeWidth={3} dot={{ fill: '#F44336', r: 4 }} activeDot={{ r: 6 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <Box id="monthly-trends-chart" sx={{ width: '100%', height: 300 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={monthlyTrends} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="month" stroke="#888" style={{ fontSize: '0.875rem' }} />
+                        <YAxis stroke="#888" style={{ fontSize: '0.875rem' }} />
+                        <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333', borderRadius: 8 }} />
+                        <Legend />
+                        <Line type="monotone" dataKey="income" name="Income" stroke="#4CAF50" strokeWidth={3} dot={{ fill: '#4CAF50', r: 4 }} activeDot={{ r: 6 }} />
+                        <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#F44336" strokeWidth={3} dot={{ fill: '#F44336', r: 4 }} activeDot={{ r: 6 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </Box>
                 )}
               </ProfessionalCard>
             </Box>
@@ -140,55 +179,57 @@ const Dashboard = () => {
                     <Typography variant="caption" color="text.secondary">Start adding expenses to see breakdown</Typography>
                   </Box>
                 ) : (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={categoryBreakdown}
-                        dataKey="amount"
-                        nameKey="categoryName"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        paddingAngle={2}
-                      >
-                        {categoryBreakdown.map((entry, index) => (
-                          <Cell
-                            key={entry.categoryId}
-                            fill={getCategoryColor(entry.categoryId, index)}
-                            stroke="#1a1a1a"
-                            strokeWidth={2}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const data = payload[0].payload;
-                            return (
-                              <Box sx={{ bgcolor: 'background.paper', p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1, boxShadow: 3 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                                  {data.categoryName}
-                                </Typography>
-                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                  {formatCurrency(data.amount)}
-                                </Typography>
-                                <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 500 }}>
-                                  {data.percentage ? `${data.percentage.toFixed(1)}%` : ''} of total
-                                </Typography>
-                              </Box>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <Box id="category-breakdown-chart" sx={{ width: '100%', height: 300 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={categoryBreakdown}
+                          dataKey="amount"
+                          nameKey="categoryName"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          paddingAngle={2}
+                        >
+                          {categoryBreakdown.map((entry, index) => (
+                            <Cell
+                              key={entry.categoryId}
+                              fill={getCategoryColor(entry.categoryId, index)}
+                              stroke="#1a1a1a"
+                              strokeWidth={2}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              return (
+                                <Box sx={{ bgcolor: 'background.paper', p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1, boxShadow: 3 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                    {data.categoryName}
+                                  </Typography>
+                                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    {formatCurrency(data.amount)}
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 500 }}>
+                                    {data.percentage ? `${data.percentage.toFixed(1)}%` : ''} of total
+                                  </Typography>
+                                </Box>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </Box>
                 )}
               </ProfessionalCard>
             </Box>
           </Fade>
         </Grid>
-      </Grid>
+      </Grid >
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
@@ -253,7 +294,7 @@ const Dashboard = () => {
           </Fade>
         </Grid>
       </Grid>
-    </Container>
+    </Container >
   );
 };
 

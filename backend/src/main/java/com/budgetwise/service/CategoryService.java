@@ -19,10 +19,13 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final com.budgetwise.repository.TransactionRepository transactionRepository;
 
-    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository) {
+    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository,
+            com.budgetwise.repository.TransactionRepository transactionRepository) {
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     /**
@@ -116,7 +119,7 @@ public class CategoryService {
      * Create a custom category for a user
      */
     @Transactional
-    @CacheEvict(value = { "categories", "custom_categories" }, key = "#userId", allEntries = true)
+    @CacheEvict(value = { "categories", "custom_categories" }, allEntries = true)
     public CategoryDto createCategory(CategoryDto categoryDto, Long userId) {
         // Check if category name already exists for this user
         if (categoryRepository.existsByNameAndTypeForUser(categoryDto.getName(), categoryDto.getType(), userId)) {
@@ -142,7 +145,7 @@ public class CategoryService {
      * Update a category (only custom categories can be updated)
      */
     @Transactional
-    @CacheEvict(value = { "categories", "custom_categories" }, key = "#userId", allEntries = true)
+    @CacheEvict(value = { "categories", "custom_categories" }, allEntries = true)
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto, Long userId) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
@@ -176,7 +179,7 @@ public class CategoryService {
      * Delete a category (only custom categories can be deleted)
      */
     @Transactional
-    @CacheEvict(value = { "categories", "custom_categories" }, key = "#userId", allEntries = true)
+    @CacheEvict(value = { "categories", "custom_categories" }, allEntries = true)
     public void deleteCategory(Long id, Long userId) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
@@ -189,6 +192,12 @@ public class CategoryService {
         // Check if user owns this category
         if (!category.getUser().getId().equals(userId)) {
             throw new RuntimeException("Access denied to this category");
+        }
+
+        // Check if category is used in any transactions
+        if (transactionRepository.existsByCategoryId(id)) {
+            throw new RuntimeException(
+                    "Cannot delete category because it has associated transactions. Please reassign them first.");
         }
 
         categoryRepository.delete(category);

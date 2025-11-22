@@ -1,0 +1,57 @@
+    // ========== BUDGETS ONLY EXPORTS ==========
+
+    public byte[] exportBudgetsExcel(Long userId) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Budgets");
+            createBudgetsSheet(sheet, userId);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    public byte[] exportBudgetsPDF(Long userId) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(outputStream);
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+
+        document.add(new Paragraph("Budgets Report").setBold().setFontSize(20));
+        document.add(new Paragraph("Generated on: " + LocalDate.now()));
+        document.add(new Paragraph(" "));
+
+        addBudgetsPDFSection(document, userId);
+
+        document.close();
+        return outputStream.toByteArray();
+    }
+
+    // ========== SAVINGS GOALS ONLY EXPORTS ==========
+
+    public byte[] exportGoalsExcel(Long userId) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Savings Goals");
+            createGoalsSheet(sheet, userId);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    public byte[] exportGoalsPDF(Long userId) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(outputStream);
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+
+        document.add(new Paragraph("Savings Goals Report").setBold().setFontSize(20));
+        document.add(new Paragraph("Generated on: " + LocalDate.now()));
+        document.add(new Paragraph(" "));
+
+        addGoalsPDFSection(document, userId);
+
+        document.close();
+        return outputStream.toByteArray();
+    }

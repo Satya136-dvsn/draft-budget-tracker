@@ -1,17 +1,19 @@
 import api from './api';
 
 const savingsGoalService = {
-  getAll: () => api.get('/goals'),
-  
-  getById: (id) => api.get(`/goals/${id}`),
-  
-  create: (data) => api.post('/goals', data),
-  
-  update: (id, data) => api.put(`/goals/${id}`, data),
-  
-  delete: (id) => api.delete(`/goals/${id}`),
-  
-  contribute: (id, amount) => api.post(`/goals/${id}/contribute`, { amount }),
+  getAll: () => api.get('/savings-goals'),
+
+  getById: (id) => api.get(`/savings-goals/${id}`),
+
+  create: (data) => api.post('/savings-goals', data),
+
+  update: (id, data) => api.put(`/savings-goals/${id}`, data),
+
+  delete: (id) => api.delete(`/savings-goals/${id}`),
+
+  contribute: (id, amount) => api.post(`/savings-goals/${id}/contribute`, { amount }),
+
+  withdraw: (id, amount) => api.post(`/savings-goals/${id}/withdraw`, { amount }),
 };
 
 export default savingsGoalService;

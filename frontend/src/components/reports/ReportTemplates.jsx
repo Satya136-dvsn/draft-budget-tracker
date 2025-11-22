@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Grid, Box, Button, Typography, Chip, Snackbar, Alert } from '@mui/material';
+import { Grid, Box, Button, Typography, Chip, Snackbar, Alert, Menu, MenuItem } from '@mui/material';
 import reportService from '../../services/reportService';
-import { Description, Assessment, ReceiptLong, TrendingUp, Download } from '@mui/icons-material';
+import { Description, Assessment, ReceiptLong, TrendingUp, Download, ArrowDropDown } from '@mui/icons-material';
 import ProfessionalCard from '../ui/ProfessionalCard';
 
 const templates = [
@@ -38,21 +38,37 @@ const templates = [
 const ReportTemplates = () => {
     const [loading, setLoading] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [selectedTemplate, setSelectedTemplate] = useState(null);
 
     const handleCloseSnackbar = () => {
         setSnackbar({ ...snackbar, open: false });
     };
 
-    const handleGenerate = async (templateId, title) => {
+    const handleMenuOpen = (event, template) => {
+        setAnchorEl(event.currentTarget);
+        setSelectedTemplate(template);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+        setSelectedTemplate(null);
+    };
+
+    const handleGenerate = async (format) => {
+        if (!selectedTemplate) return;
+
+        handleMenuClose();
         try {
             setLoading(true);
-            const response = await reportService.generateReport(templateId);
+            const response = await reportService.generateReport(selectedTemplate.id, format);
 
             // Create download link with proper file extension
+            const extension = format === 'excel' ? 'xlsx' : format === 'pdf' ? 'pdf' : 'txt';
             const url = window.URL.createObjectURL(response.data);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`);
+            link.setAttribute('download', `${selectedTemplate.title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.${extension}`);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -83,7 +99,8 @@ const ReportTemplates = () => {
                                 <Button
                                     variant="contained"
                                     startIcon={<Download />}
-                                    onClick={() => handleGenerate(template.id, template.title)}
+                                    endIcon={<ArrowDropDown />}
+                                    onClick={(e) => handleMenuOpen(e, template)}
                                     disabled={loading}
                                 >
                                     {loading ? 'Generating...' : 'Generate'}
@@ -102,6 +119,16 @@ const ReportTemplates = () => {
                     </Grid>
                 ))}
             </Grid>
+
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+            >
+                <MenuItem onClick={() => handleGenerate('text')}>Text Report (.txt)</MenuItem>
+                <MenuItem onClick={() => handleGenerate('excel')}>Excel Spreadsheet (.xlsx)</MenuItem>
+                <MenuItem onClick={() => handleGenerate('pdf')}>PDF Document (.pdf)</MenuItem>
+            </Menu>
             <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
                 <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
                     {snackbar.message}

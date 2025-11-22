@@ -68,7 +68,7 @@ public class DashboardService {
                                 .build();
         }
 
-        @Cacheable(value = "dashboard_trends", key = "#userId")
+        @Cacheable(value = "dashboard_trends", key = "#userId + '_' + #months")
         public List<MonthlyTrendDto> getMonthlyTrends(Long userId, Integer months) {
                 if (months == null || months <= 0) {
                         months = 6;
@@ -107,13 +107,27 @@ public class DashboardService {
                 return trends;
         }
 
-        @Cacheable(value = "dashboard_breakdown", key = "#userId")
-        public List<CategoryBreakdownDto> getCategoryBreakdown(Long userId) {
-                LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
-                LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+        @Cacheable(value = "dashboard_breakdown", key = "#userId + '_' + #months")
+        public List<CategoryBreakdownDto> getCategoryBreakdown(Long userId, Integer months) {
+                if (months == null || months <= 0) {
+                        months = 6; // Default to 6 months if not specified
+                }
+
+                LocalDate endDate = LocalDate.now();
+                // Calculate start date based on months (e.g., 6 months ago from today)
+                // If months=1, it means current month? Or last 1 month?
+                // Analytics usually implies "Last X Months".
+                // Let's match getMonthlyTrends logic: endDate.minusMonths(i) where i is 0 to
+                // months-1.
+                // So start date is endDate.minusMonths(months - 1).withDayOfMonth(1)?
+                // Or just minusMonths(months)?
+                // Let's say months=6. We want data from 6 months ago to now.
+                LocalDate startDate = endDate.minusMonths(months).withDayOfMonth(1);
+
+                // However, getMonthlyTrends iterates. Here we just want the range.
 
                 List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
-                                userId, startOfMonth, endOfMonth);
+                                userId, startDate, endDate);
 
                 // Filter only expenses for category breakdown
                 List<Transaction> expenses = transactions.stream()

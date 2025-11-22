@@ -32,6 +32,11 @@ const SavingsGoals = () => {
   const [contributeGoal, setContributeGoal] = useState(null);
   const [contributeAmount, setContributeAmount] = useState('');
 
+  // Withdraw dialog
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const [withdrawGoal, setWithdrawGoal] = useState(null);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+
   useEffect(() => {
     loadGoals();
   }, []);
@@ -86,6 +91,12 @@ const SavingsGoals = () => {
     setContributeDialogOpen(true);
   };
 
+  const handleWithdraw = (goal) => {
+    setWithdrawGoal(goal);
+    setWithdrawAmount('');
+    setWithdrawDialogOpen(true);
+  };
+
   const handleContributeSubmit = async () => {
     if (!contributeAmount || parseFloat(contributeAmount) <= 0) {
       setError('Please enter a valid contribution amount');
@@ -100,6 +111,28 @@ const SavingsGoals = () => {
       loadGoals();
     } catch (err) {
       setError('Failed to add contribution');
+    }
+  };
+
+  const handleWithdrawSubmit = async () => {
+    if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) {
+      setError('Please enter a valid withdrawal amount');
+      return;
+    }
+
+    if (parseFloat(withdrawAmount) > (withdrawGoal?.currentAmount || 0)) {
+      setError('Insufficient funds in savings goal');
+      return;
+    }
+
+    try {
+      await savingsGoalService.withdraw(withdrawGoal.id, parseFloat(withdrawAmount));
+      setWithdrawDialogOpen(false);
+      setWithdrawGoal(null);
+      setWithdrawAmount('');
+      loadGoals();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to withdraw amount');
     }
   };
 
@@ -242,6 +275,7 @@ const SavingsGoals = () => {
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                         onContribute={handleContribute}
+                        onWithdraw={handleWithdraw}
                       />
                     </Box>
                   </Fade>
@@ -306,6 +340,41 @@ const SavingsGoals = () => {
           <Button onClick={() => setContributeDialogOpen(false)}>Cancel</Button>
           <Button onClick={handleContributeSubmit} variant="contained">
             Add Contribution
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Withdraw Dialog */}
+      <Dialog open={withdrawDialogOpen} onClose={() => setWithdrawDialogOpen(false)}>
+        <DialogTitle>
+          <Box display="flex" alignItems="center" gap={1}>
+            <MoneyIcon color="warning" />
+            Withdraw Funds
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Withdrawing from: <strong>{withdrawGoal?.name}</strong>
+          </Typography>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Withdrawal Amount"
+            type="number"
+            fullWidth
+            variant="outlined"
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(e.target.value)}
+            InputProps={{
+              startAdornment: <Typography color="text.secondary" sx={{ mr: 1 }}>₹</Typography>,
+            }}
+            helperText={`Available: ${formatCurrency(withdrawGoal?.currentAmount || 0)}`}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setWithdrawDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleWithdrawSubmit} variant="contained" color="warning">
+            Withdraw
           </Button>
         </DialogActions>
       </Dialog>

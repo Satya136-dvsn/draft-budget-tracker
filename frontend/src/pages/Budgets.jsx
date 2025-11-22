@@ -13,6 +13,8 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, TrendingUp as TrendingUpIcon } from '@mui/icons-material';
 import budgetService from '../services/budgetService';
+import exportService from '../services/exportService';
+import ExportMenu from '../components/common/ExportMenu';
 import BudgetDialog from '../components/BudgetDialog';
 import BudgetCard from '../components/budgets/BudgetCard';
 
@@ -117,14 +119,20 @@ const Budgets = () => {
                 Track your spending limits and stay on budget
               </Typography>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleAdd}
-              size="large"
-            >
-              Create Budget
-            </Button>
+            <Box display="flex" gap={1}>
+              <ExportMenu
+                formats={['excel', 'pdf']}
+                onExport={(format) => exportService.exportBudgets(format)}
+              />
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleAdd}
+                size="large"
+              >
+                Create Budget
+              </Button>
+            </Box>
           </Box>
 
           {error && (
